@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.barshop.app.ejb</groupId>
+	<artifactId>wildfly-ejb-remote-barshop</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>wildfly-ejb-remote-barshop</name>
+	<packaging>ejb</packaging>
+	<description>Contenedor EJB</description>
+
+	<properties>
+		<java.version>8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<junit.version>4.12</junit.version>
+		<logback.version>1.2.3</logback.version>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<assertj.version>3.9.0</assertj.version>
+		<wildfly-maven-plugin.version>2.0.1.Final</wildfly-maven-plugin.version>
+		<junit-jupiter.version>5.7.2</junit-jupiter.version>
+		<wildfly.timeout>900</wildfly.timeout>
+	</properties>
+
+	<dependencies>
+		<!-- INIT EJB DEPENDENCY -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>8.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- FINISH EJB DEPENDENCY -->
+		<!-- INIT TESTING DEPENDENCY -->
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>${assertj.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
+		</dependency>
+		<!-- FINISH TESTING DEPENDENCY -->
+		<!-- INIT LOOMBOK DEPENDENCY -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.20</version>
+		</dependency>
+		<!-- FINISH LOOMBOK DEPENDENCY -->
+		<!-- INIT LOG4J DEPENDENCY -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+		<!-- FINISH LOG4J DEPENDENCY -->
+		<!-- INIT JSON NOTATION DEPENDENCY -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.12.4</version>
+		</dependency>
+		<!-- FINISH JSON NOTATION DEPENDENCY -->
+	</dependencies>
+	<build>
+		<finalName>${project.name}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<ejbVersion>3.0</ejbVersion>
+					<ejbJar>META-INF/ejb-jar.xml</ejbJar>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
+				<version>${wildfly-maven-plugin.version}</version>
+				<configuration>
+					<skip>false</skip>
+					<server-args>
+						<server-arg>-Djboss.server.base.dir=target/wildfly-24.0.1.Final/standalone/</server-arg>
+						<server-arg>-b=${WILD_IP_SERVER}</server-arg>
+						<server-arg>-Djboss.http.port=${WILD_HTTP_PORT}</server-arg>
+						<server-arg>-Djboss.https.port=${WILD_HTTPS_PORT}</server-arg>
+						<server-arg>-Djboss.ajp.port=${WILD_AJP_PORT}</server-arg>
+						<server-arg>-Djboss.management.http.port=${WILD_HTTP_MANAGEMENT_PORT}</server-arg>
+						<server-arg>-Djboss.management.https.port=${WILD_HTTPS_MANAGEMENT_PORT}</server-arg>
+					</server-args>
+					<add-user>
+						<users>
+							<user>
+								<username>admin</username>
+								<password>${WILD_PASS_ADMIN}</password>
+								<groups>
+									<group>admin</group>
+									<group>user</group>
+								</groups>
+								<application-user>true</application-user>
+							</user>
+						</users>
+					</add-user>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
