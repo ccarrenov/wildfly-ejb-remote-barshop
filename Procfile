@@ -1,1 +1,1 @@
-web: ./mvnw wildfly:run
+web: mvn wildfly:run
