@@ -8,7 +8,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>wildfly-ejb-remote-barshop</name>
 	<packaging>ejb</packaging>
-	<description>Contenedor EJB</description>
+	<description>Barshop EJB</description>
 
 	<properties>
 		<java.version>8</java.version>
