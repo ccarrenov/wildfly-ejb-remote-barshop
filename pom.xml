@@ -180,14 +180,14 @@
 								<password>${WILD_ADMIN_PASS}</password>
 								<application-user>false</application-user>
 							</user>
-<!-- 							<user> -->
-<!-- 								<username>${WILD_APPLICATION_USER}</username> -->
-<!-- 								<password>${WILD_APPLICATION_PASS}</password> -->
-<!-- 								<groups> -->
-<!-- 									<group>user</group> -->
-<!-- 								</groups> -->
-<!-- 								<application-user>true</application-user> -->
-<!-- 							</user> -->
+							<user>
+								<username>${WILD_APPLICATION_USER}</username>
+								<password>${WILD_APPLICATION_PASS}</password>
+								<groups>
+									<group>user</group>
+								</groups>
+								<application-user>true</application-user>
+							</user>
 						</users>
 					</add-user>
 				</configuration>
