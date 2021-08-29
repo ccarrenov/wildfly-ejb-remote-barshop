@@ -21,6 +21,7 @@
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<assertj.version>3.9.0</assertj.version>
 		<wildfly-maven-plugin.version>2.0.1.Final</wildfly-maven-plugin.version>
+		<wildfly-version>24.0.1.Final</wildfly-version>
 		<junit-jupiter.version>5.7.2</junit-jupiter.version>
 		<wildfly.timeout>900</wildfly.timeout>
 	</properties>
@@ -85,22 +86,10 @@
 		<!-- FINISH JSON NOTATION DEPENDENCY -->
 	</dependencies>
 	<build>
+
 		<finalName>${project.name}</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			<!-- INIT PACKING EJB PROJECT -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-ejb-plugin</artifactId>
@@ -114,8 +103,40 @@
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
 					</archive>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+			<!-- FINISH PACKING EJB PROJECT -->
+			<!-- INIT DOWNLOAD DEPENDENCY EJB PROJECT -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<!-- DOWLOAD WILDFLY APPLICATION SERVER -->
+								<artifactItem>
+									<groupId>org.wildfly</groupId>
+									<artifactId>wildfly-dist</artifactId>
+									<version>${wildfly-version}</version>
+									<type>zip</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>target</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- FINISH DOWNLOAD DEPENDENCY EJB PROJECT -->
+			<!-- INIT DEPLOY PLUGIN PROJECT -->
 			<plugin>
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-maven-plugin</artifactId>
@@ -123,7 +144,7 @@
 				<configuration>
 					<skip>false</skip>
 					<server-args>
-						<server-arg>-Djboss.server.base.dir=target/wildfly-24.0.1.Final/standalone/</server-arg>
+						<server-arg>-Djboss.server.base.dir=target/wildfly-${wildfly-version}/standalone/</server-arg>
 						<server-arg>-b=${WILD_IP_SERVER}</server-arg>
 						<server-arg>-Djboss.http.port=${WILD_HTTP_PORT}</server-arg>
 						<server-arg>-Djboss.https.port=${WILD_HTTPS_PORT}</server-arg>
@@ -134,10 +155,14 @@
 					<add-user>
 						<users>
 							<user>
-								<username>admin</username>
-								<password>${WILD_PASS_ADMIN}</password>
+								<username>${WILD_ADMIN_USER}</username>
+								<password>${WILD_ADMIN_PASS}</password>
+								<application-user>false</application-user>
+							</user>
+							<user>
+								<username>${WILD_APPLICATION_USER}</username>
+								<password>${WILD_APPLICATION_PASS}</password>
 								<groups>
-									<group>admin</group>
 									<group>user</group>
 								</groups>
 								<application-user>true</application-user>
@@ -146,6 +171,7 @@
 					</add-user>
 				</configuration>
 			</plugin>
+			<!-- FINISH DEPLOY PLUGIN PROJECT -->
 		</plugins>
 	</build>
 </project>
