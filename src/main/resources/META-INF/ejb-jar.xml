@@ -2,6 +2,6 @@
 <ejb-jar xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/ejb-jar_3_2.xsd"
     version="3.2">
-    <module-name>spring-ejb-remote</module-name>
-    <display-name>spring-ejb-remote</display-name>
+    <module-name>wildfly-ejb-remote-barshop</module-name>
+    <display-name>wildfly-ejb-remote-barshop</display-name>
 </ejb-jar>
