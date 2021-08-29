@@ -132,6 +132,28 @@
 							</artifactItems>
 						</configuration>
 					</execution>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<!-- COPY EJB IN WILDFLY DEPLOY FOLDER -->
+								<artifactItem>
+									<groupId>com.barshop.app.ejb</groupId>
+									<artifactId>wildfly-ejb-remote-barshop</artifactId>
+									<version>1.0.0-SNAPSHOT</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>target/wildfly-${wildfly-version}/standalone/deployments</outputDirectory>
+									<destFileName>${project.name}.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.basedir}/target/wildfly-${wildfly-version}/standalone/deployments</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<!-- FINISH DOWNLOAD DEPENDENCY EJB PROJECT -->
