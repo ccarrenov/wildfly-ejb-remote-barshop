@@ -86,7 +86,6 @@
 		<!-- FINISH JSON NOTATION DEPENDENCY -->
 	</dependencies>
 	<build>
-
 		<finalName>${project.name}</finalName>
 		<plugins>
 			<!-- INIT PACKING EJB PROJECT -->
