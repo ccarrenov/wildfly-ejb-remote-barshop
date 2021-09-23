@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 
 import com.barshop.app.ejb.remote.CountryEJBRemote;
+import com.barshop.app.models.dao.GenericDAO;
 import com.barshop.app.models.dto.Country;
+import com.barshop.app.models.entity.Entity;
+import com.barshop.app.models.mapper.util.EntityReflexionUtil;
 
 @Stateless(name = "CountryEJBBean")
 public class CountryEJBBean implements CountryEJBRemote {
@@ -17,15 +21,18 @@ public class CountryEJBBean implements CountryEJBRemote {
 
     private List<Country> countries;
 
+    private GenericDAO<Country, Entity, Long> dao;
+
     public CountryEJBBean() {
         this.countries = new ArrayList<>();
+        dao = new GenericDAO<>();
     }
 
     @Override
     public List<Country> findAll() {
-        LOGGER.info("findAll");        
-        LOGGER.info(countries);
-        return countries;
+        LOGGER.info("findAll");
+        Entity country = EntityReflexionUtil.newInstance("Country");
+        return dao.findAll(Country.class, country);
     }
 
     @Override
@@ -53,7 +60,7 @@ public class CountryEJBBean implements CountryEJBRemote {
 
     @Override
     public void update( Country country ) {
-        LOGGER.info("update");        
+        LOGGER.info("update");
         int position = -1;
         for (int i = 0; i < this.countries.size(); i++) {
             if (this.countries.get(i).getId() == country.getId()) {
@@ -69,8 +76,8 @@ public class CountryEJBBean implements CountryEJBRemote {
             updateC.setCountryCallingCode(country.getCountryCallingCode());
             updateC.setCountryCode(country.getCountryCode());
         }
-        
-        LOGGER.info(this.countries.size());                
+
+        LOGGER.info(this.countries.size());
     }
 
 }

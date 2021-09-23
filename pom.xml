@@ -20,10 +20,31 @@
 		<logback.version>1.2.3</logback.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<assertj.version>3.9.0</assertj.version>
+		<!-- INIT WILDFLY CONFIGURATION -->
 		<wildfly-maven-plugin.version>2.0.1.Final</wildfly-maven-plugin.version>
-		<wildfly-version>24.0.1.Final</wildfly-version>
-		<junit-jupiter.version>5.7.2</junit-jupiter.version>
+		<wildfly.version>24.0.1.Final</wildfly.version>
 		<wildfly.timeout>900</wildfly.timeout>
+		<jboss.address>0.0.0.0</jboss.address>
+		<jboss.http.port>8080</jboss.http.port>
+		<jboss.https.port>8443</jboss.https.port>
+		<jboss.ajp.port>8009</jboss.ajp.port>
+		<jboss.management.http.port>9990</jboss.management.http.port>
+		<jboss.management.https.port>9993</jboss.management.https.port>
+		<jboss.custom.admin.user>admin</jboss.custom.admin.user>
+		<jboss.custom.admin.pass>admin1234</jboss.custom.admin.pass>
+		<jboss.custom.app.user>application</jboss.custom.app.user>
+		<jboss.custom.app.pass>application1234</jboss.custom.app.pass>
+		<!-- FINISH WILDFLY CONFIGURATION -->
+		<junit-jupiter.version>5.7.2</junit-jupiter.version>
+		<com.oracle.database.jdbc.version>21.1.0.0</com.oracle.database.jdbc.version>
+		<!-- <mysql-connector-java.version>5.1.39</mysql-connector-java.version> -->
+		<!-- INIT DATASOURCE CONFIGURATION -->
+		<com.oracle.database.connection-url>jdbc:oracle:thin:@localhost:1521/xe</com.oracle.database.connection-url>
+		<com.oracle.database.user-name>test</com.oracle.database.user-name>
+		<com.oracle.database.password>test1234</com.oracle.database.password>
+
+		<!-- FINISH DATASOURCE CONFIGURATION -->
+
 	</properties>
 
 	<dependencies>
@@ -84,6 +105,14 @@
 			<version>2.12.4</version>
 		</dependency>
 		<!-- FINISH JSON NOTATION DEPENDENCY -->
+		<!-- INIT ORACLE DATABASE ENGINE DEPENDENCY -->
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+			<version>${com.oracle.database.jdbc.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- FINISH ORACLE DATABASE ENGINE DEPENDENCY -->
 	</dependencies>
 	<build>
 		<finalName>${project.name}</finalName>
@@ -93,19 +122,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-ejb-plugin</artifactId>
 				<version>3.1.0</version>
-				<configuration>
-					<ejbVersion>3.0</ejbVersion>
-					<ejbJar>META-INF/ejb-jar.xml</ejbJar>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-						</manifest>
-					</archive>
-					<failOnMissingWebXml>true</failOnMissingWebXml>
-				</configuration>
 			</plugin>
 			<!-- FINISH PACKING EJB PROJECT -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.0.0-M1</version>
+			</plugin>
 			<!-- INIT DOWNLOAD DEPENDENCY EJB PROJECT -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -124,7 +147,7 @@
 								<artifactItem>
 									<groupId>org.wildfly</groupId>
 									<artifactId>wildfly-dist</artifactId>
-									<version>${wildfly-version}</version>
+									<version>${wildfly.version}</version>
 									<type>zip</type>
 									<overWrite>false</overWrite>
 									<outputDirectory>target</outputDirectory>
@@ -132,65 +155,136 @@
 							</artifactItems>
 						</configuration>
 					</execution>
+					<!-- COPY EJB IN WILDFLY DEPLOY FOLDER -->
 					<execution>
-						<id>copy</id>
+						<id>copy-ejb</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
 						</goals>
 						<configuration>
 							<artifactItems>
-								<!-- COPY EJB IN WILDFLY DEPLOY FOLDER -->
 								<artifactItem>
 									<groupId>com.barshop.app.ejb</groupId>
 									<artifactId>wildfly-ejb-remote-barshop</artifactId>
 									<version>1.0.0-SNAPSHOT</version>
 									<type>jar</type>
 									<overWrite>false</overWrite>
-									<outputDirectory>target/wildfly-${wildfly-version}/standalone/deployments</outputDirectory>
+									<outputDirectory>target/wildfly-${wildfly.version}/standalone/deployments</outputDirectory>
 									<destFileName>${project.name}.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>${project.basedir}/target/wildfly-${wildfly-version}/standalone/deployments</outputDirectory>
+						</configuration>
+					</execution>
+					<!-- COPY DEPENDECIES IN LIB FOLDER -->
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</execution>
+					<!-- COPY ORACLE LIB IN WILDFLY DEPLOY FOLDER -->
+					<execution>
+						<id>copy-oracle-lib</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<artifactId>ojdbc8</artifactId>
+									<groupId>com.oracle.database.jdbc</groupId>
+									<version>${com.oracle.database.jdbc.version}</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>target/wildfly-${wildfly.version}/standalone/deployments</outputDirectory>
+									<destFileName>target/lib/ojdbc8.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<!-- FINISH DOWNLOAD DEPENDENCY EJB PROJECT -->
+			<!-- INIT COPY STANDALONE CONFIGURATION -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-standalone-xml</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/wildfly-${wildfly.version}/standalone/configuration/</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources/wildfly</directory>
+									<includes>
+										<include>standalone.xml</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- FINISH COPY STANDALONE CONFIGURATION -->
 			<!-- INIT DEPLOY PLUGIN PROJECT -->
 			<plugin>
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-maven-plugin</artifactId>
 				<version>${wildfly-maven-plugin.version}</version>
-				<configuration>
-					<skip>false</skip>
-					<server-args>
-						<server-arg>-Djboss.server.base.dir=target/wildfly-${wildfly-version}/standalone/</server-arg>
-						<server-arg>-b=${WILD_IP_SERVER}</server-arg>
-						<server-arg>-Djboss.http.port=${WILD_HTTP_PORT}</server-arg>
-						<server-arg>-Djboss.https.port=${WILD_HTTPS_PORT}</server-arg>
-						<server-arg>-Djboss.ajp.port=${WILD_AJP_PORT}</server-arg>
-						<server-arg>-Djboss.management.http.port=${WILD_HTTP_MANAGEMENT_PORT}</server-arg>
-						<server-arg>-Djboss.management.https.port=${WILD_HTTPS_MANAGEMENT_PORT}</server-arg>
-					</server-args>
-					<add-user>
-						<users>
-							<user>
-								<username>${WILD_ADMIN_USER}</username>
-								<password>${WILD_ADMIN_PASS}</password>
-								<application-user>false</application-user>
-							</user>
-							<user>
-								<username>${WILD_APPLICATION_USER}</username>
-								<password>${WILD_APPLICATION_PASS}</password>
-								<groups>
-									<group>user</group>
-								</groups>
-								<application-user>true</application-user>
-							</user>
-						</users>
-					</add-user>
-				</configuration>
+				<executions>
+					<execution>
+						<id>wildfly-conf-and-start</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<server-args>
+								<server-arg>-Djboss.server.base.dir=target/wildfly-${wildfly.version}/standalone/</server-arg>
+								<server-arg>-b=${jboss.address}</server-arg>
+								<server-arg>-Djboss.home=target/wildfly-${wildfly.version}</server-arg>
+								<server-arg>-Djboss.http.port=${jboss.http.port}</server-arg>
+								<server-arg>-Djboss.https.port=${jboss.https.port}</server-arg>
+								<server-arg>-Djboss.ajp.port=${jboss.ajp.port}</server-arg>
+								<server-arg>-Djboss.management.http.port=${jboss.management.http.port}</server-arg>
+								<server-arg>-Djboss.management.https.port=${jboss.management.https.port}</server-arg>
+								<server-arg>-Dcom.oracle.database.connection-url=${com.oracle.database.connection-url}</server-arg>
+								<server-arg>-Dcom.oracle.database.user-name=${com.oracle.database.user-name}</server-arg>
+								<server-arg>-Dcom.oracle.database.password=${com.oracle.database.password}</server-arg>
+							</server-args>
+							<add-user>
+								<users>
+									<user>
+										<username>${jboss.custom.admin.user}</username>
+										<password>${jboss.custom.admin.pass}</password>
+										<application-user>false</application-user>
+									</user>
+									<user>
+										<username>${jboss.custom.app.user}</username>
+										<password>${jboss.custom.app.pass}</password>
+										<groups>
+											<group>user</group>
+										</groups>
+										<application-user>true</application-user>
+									</user>
+								</users>
+							</add-user>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<!-- FINISH DEPLOY PLUGIN PROJECT -->
 		</plugins>
