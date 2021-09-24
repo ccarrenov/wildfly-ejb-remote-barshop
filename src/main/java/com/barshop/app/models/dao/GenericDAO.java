@@ -6,10 +6,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.PersistenceContext;
+import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -33,10 +35,11 @@ public class GenericDAO<D extends DataAccessObject, E extends Entity, I> {
 
     private static final String ID = "Id: {}";
 
-    @PersistenceContext
     private EntityManager em;
 
-    public GenericDAO() {
+    public GenericDAO() throws NamingException {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("barshopPU");
+        em = factory.createEntityManager();
     }
 
     public GenericDAO(EntityManager em) {
@@ -58,13 +61,6 @@ public class GenericDAO<D extends DataAccessObject, E extends Entity, I> {
         LOGGER.debug(ID, id);
         return convert.convertListObjects(findAll(clazzE, id.getAttribute()), clazzNameD);
     }
-
-    // public Page<D> findAll( E clazzE, PageRequest page, Class<D> clazzNameD ) throws NumberPageException {
-    //
-    // MapperFieldAnnotation id = ReflexionUtil.fieldByAnnotation(clazzE, Id.class);
-    // LOGGER.debug(ID, id);
-    // return findAll(clazzE, id.getAttribute(), page, clazzNameD);
-    // }
 
     public D findById( Class<D> clazzNameD, E clazzE, I id ) {
         MapperConvert<E, D> convert = new MapperConvert<>();
@@ -255,37 +251,5 @@ public class GenericDAO<D extends DataAccessObject, E extends Entity, I> {
         query.select(builder.count(variableRoot));
         return em.createQuery(query).getSingleResult();
     }
-
-    // @SuppressWarnings("unchecked")
-    // public Page<D> findAll( E clazzE, String attributeName, PageRequest page, Class<D> clazzNameD ) throws NumberPageException {
-    // // COUNT ELEMENTS IN ENTITY
-    // Long count = count(clazzE);
-    // int pageNumber = page.getPageNumber();
-    // double pageSize = (double) page.getPageSize();
-    // long totalPage = DecimalUtil.roundDecimal(count / pageSize, 0, RoundingMode.UP).longValue();
-    //
-    // if (totalPage < pageNumber) {
-    // throw new NumberPageException(WSMessageEnums.ERROR_NUMBER_PAGE.getValue().replace("$1", String.valueOf(totalPage)));
-    // }
-    //
-    // CriteriaBuilder builder = em.getCriteriaBuilder();
-    // // TYPE DEPLOY ZONE
-    // CriteriaQuery<E> query = (CriteriaQuery<E>) builder.createQuery(clazzE.getClass());
-    // // ADD ORIGIN TABLE
-    // Root<E> variableRoot = (Root<E>) query.from(clazzE.getClass());
-    // // CREATE QUERY SELECT COL1, COL2, ... , COLN
-    // query.select(variableRoot);
-    // // ADD ORDER BY ATTRIBUTENAME FROM ENTITY
-    // query.orderBy(builder.asc(variableRoot.get(attributeName)));
-    //
-    // TypedQuery<E> typedQuery = em.createQuery(query);
-    // int firstResult = (pageNumber - 1) * page.getPageSize();
-    // typedQuery.setFirstResult(firstResult);
-    // typedQuery.setMaxResults((int) pageSize);
-    // List<E> elements = typedQuery.getResultList();
-    // MapperConvert<E, D> convert = new MapperConvert<>();
-    // List<D> elementsD = convert.convertListObjects(elements, clazzNameD);
-    // return new GenericPage<>(elementsD, pageNumber, (int) pageSize, (int) totalPage, Sort.by(attributeName), count);
-    // }
 
 }

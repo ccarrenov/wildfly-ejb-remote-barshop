@@ -39,3 +39,20 @@ http://127.0.0.1:8080/
 http://127.0.0.1:9990/
 
 ![alt text](doc/img/wildfly_server_2.png)
+
+
+mvn install:install-file \
+   -Dfile=target/wildfly-24.0.1.Final/standalone/deployments/wildfly-ejb-remote-barshop.jar \
+   -DgroupId=com.barshop.app.ejb \
+   -DartifactId=wildfly-ejb-remote-barshop \
+   -Dversion=1.0.0-SNAPSHOT \
+   -Dpackaging=jar \
+   -DgeneratePom=true
+
+mvn install:install-file \
+   -Dfile=target/wildfly-ejb-remote-barshop.jar \
+   -DgroupId=com.barshop.app.ejb \
+   -DartifactId=wildfly-ejb-remote-barshop \
+   -Dversion=1.0.0-SNAPSHOT \
+   -Dpackaging=jar \
+   -DgeneratePom=true

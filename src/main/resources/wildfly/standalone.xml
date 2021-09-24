@@ -159,7 +159,7 @@
                         <password>sa</password>
                     </security>
                 </datasource>
-                <datasource jndi-name="java:/siap2" pool-name="siap2">
+                <datasource jndi-name="java:/barshop" pool-name="siap2">
                     <connection-url>${com.oracle.database.connection-url}</connection-url>
                     <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
                     <driver>ojdbc8.jar</driver>

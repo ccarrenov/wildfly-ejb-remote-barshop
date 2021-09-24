@@ -11,10 +11,8 @@ public interface CountryEJBRemote {
 
     public List<Country> findAll();
 
-    public void deleteById(long id);
+    public boolean deleteById(long id);
 
-    public void save( Country country );
-
-    public void update( Country country );
+    public Country createOrUpdate( Country country );
 
 }

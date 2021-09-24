@@ -2,9 +2,15 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0"
 	xsi:schemaLocation=" http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-	<persistence-unit name="primary">
-		<jta-data-source>java:/siap2</jta-data-source>
+	<persistence-unit name="barshopPU"
+		transaction-type="JTA">
+		<jta-data-source>java:/barshop</jta-data-source>
+		<class>com.barshop.app.models.entity.impl.oracle.CountryOracle</class>
 		<properties>
+			<property name="hibernate.dialect"
+				value="org.hibernate.dialect.Oracle10gDialect" />
+			<property name="hibernate.connection.driver_class"
+				value="oracle.jdbc.driver.OracleDriver" />
 			<property name="hibernate.hbm2ddl.auto" value="none" />
 			<property name="hibernate.show_sql" value="true" />
 			<property
